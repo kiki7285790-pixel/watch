@@ -1,0 +1,15 @@
+{
+  "name": "애플워치 저축",
+  "short_name": "애플워치 저축",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F0EC",
+  "theme_color": "#F3F0EC",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
