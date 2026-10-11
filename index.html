@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#F3F0EC">
+<meta name="format-detection" content="telephone=no">
+<title>애플워치 저축</title>
+<style>
+/* 애플워치 저축 1.0 — 아이폰 앱 (웹뷰 껍데기 안에서 돈다)
+   2026-10-11 사용자: "아이폰에서 사용할 수 있는 저축 앱을 만들어 줄 수 있니? 애플워치 말이야"
+   정한 것: 진짜 아이폰 앱 · 애플워치 저축만 새로 · 시리즈 12 739,000원 · 주급 + 청년월세 + 토익 지원금 */
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-4Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-5Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-6SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-7Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-8ExtraBold.woff2') format('woff2');font-weight:800;font-display:swap}
+@font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-9Black.woff2') format('woff2');font-weight:900;font-display:swap}
+
+/* ── 색 · 크기 기준값 (다크 브론즈) ───────────────── */
+:root{
+  --accent:#7B5B41; --accent-dark:#4B3527; --accent-light:#F4ECE3; --accent-2:#A8865F;
+  --red:#E5484D; --red-light:#FDECEC; --green:#1E9E72; --green-light:#E5F5EE;
+  --g900:#1C1915; --g800:#36312B; --g700:#514A42; --g600:#6E665D; --g500:#8F877E; --g400:#B4ADA5;
+  --g300:#D6D0C9; --g200:#E8E3DD; --g100:#F3F0EC; --g50:#FAF8F6; --white:#fff;
+  --bg:#F3F0EC;
+  --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05);
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{font-family:'Paperlogy',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;color:var(--g900);
+  -webkit-font-smoothing:antialiased;letter-spacing:-0.02em;line-height:1.45;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  overscroll-behavior:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+button,input,select,textarea{font-family:inherit;letter-spacing:inherit;color:inherit;border:0;background:none;outline:none}
+button{cursor:pointer}
+.tnum{font-variant-numeric:tabular-nums}
+.app{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(90px + var(--safe-b))}
+
+/* ── 위 막대 ───────────────────────────── */
+.appbar{position:sticky;top:0;z-index:50;padding:calc(var(--safe-t) + 12px) 20px 10px;
+  background:rgba(243,240,236,.86);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px)}
+.appbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.appbar h1{display:flex;align-items:center;gap:8px;font-size:21px;font-weight:900;letter-spacing:-0.04em}
+.appbar h1 svg{width:22px;height:22px;flex:0 0 auto}
+.chip-day{font-size:12.5px;font-weight:700;color:var(--g600);background:var(--white);padding:7px 12px;border-radius:99px;box-shadow:var(--shadow);white-space:nowrap}
+main{padding:6px 16px 0}
+.view{display:none}
+.view.on{display:block}
+.sec{font-size:14px;font-weight:800;color:var(--g600);margin:22px 4px 10px}
+.card{background:var(--white);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
+.card.tight{padding:6px 18px}
+
+/* ── 홈: 큰 카드 ───────────────────────────── */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:20px 18px 0;color:#fff;margin-bottom:12px;
+  background:radial-gradient(120% 90% at 85% 10%,rgba(232,196,150,.30),transparent 60%),linear-gradient(150deg,#2E2219 0%,#4E3929 48%,#7E5E44 100%);
+  box-shadow:0 12px 30px rgba(60,38,20,.28)}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%)}
+.hero-top{display:flex;gap:10px}
+.hero-l{flex:1;min-width:0}
+.hero-k{font-size:17px;font-weight:900;letter-spacing:-0.035em}
+.hero-s{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.62);margin-top:2px;word-break:keep-all}
+.hero-pct{font-size:44px;font-weight:900;letter-spacing:-0.05em;line-height:1;margin-top:18px}
+.hero-pct small{font-size:20px;font-weight:800;margin-left:2px;opacity:.85}
+.hero-amt{font-size:15px;font-weight:800;margin-top:10px;white-space:nowrap}
+.hero-amt small{font-size:12px;font-weight:600;color:rgba(255,255,255,.6);margin-left:3px}
+.hero-r{flex:0 0 104px;display:flex;align-items:center;justify-content:center}
+.hero-r svg{width:104px;height:164px;filter:drop-shadow(0 10px 16px rgba(0,0,0,.35))}
+.hero-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:14px}
+.hero-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#C9A27A,#F1D7B3)}
+.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px -18px 0;padding:13px 18px;background:rgba(0,0,0,.18);font-size:13px;font-weight:700}
+.hero-foot span{color:rgba(255,255,255,.65);font-weight:600}
+.hero-foot b{font-weight:900;font-size:14.5px}
+.hero-foot em{font-style:normal;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);padding:4px 9px;border-radius:99px;white-space:nowrap}
+.hero-foot .rem{white-space:nowrap}
+.hero.done .hero-pct{color:#F1D7B3}
+.ring-t{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+
+/* ── 할 일 · 들어올 돈 ───────────────────────────── */
+.todo{display:flex;align-items:center;gap:12px}
+.todo + .todo{margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)}
+.todo-ic{flex:0 0 40px;height:40px;border-radius:13px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.todo-ic svg{width:21px;height:21px}
+.todo-ic.red{background:var(--red-light);color:var(--red)}
+.todo-ic.green{background:var(--green-light);color:var(--green)}
+.todo-m{flex:1;min-width:0}
+.todo-t{font-size:15px;font-weight:800;word-break:keep-all}
+.todo-d{font-size:12px;font-weight:500;color:var(--g500);margin-top:1px;word-break:keep-all}
+.todo-a{flex:0 0 auto;font-size:16px;font-weight:900;white-space:nowrap}
+.todo-a.q{font-size:13.5px;color:var(--accent)}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn-row .btn{flex:1 1 0;min-width:0;white-space:nowrap;padding:14px 8px}
+.btn-row .btn.ghost{font-size:14px}
+.btn-row.sm .btn{padding:11px 8px;font-size:13.5px}
+.btn{width:100%;border-radius:14px;padding:14px;font-size:15.5px;font-weight:800;color:#fff;
+  background:linear-gradient(120deg,var(--accent) 0%,var(--accent-2) 100%);box-shadow:0 6px 16px rgba(123,91,65,.25);transition:transform .12s}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--g100);color:var(--g700);box-shadow:none}
+.btn.red{background:var(--red);box-shadow:none}
+.btn.sm{padding:12px;font-size:14px;margin-top:10px}
+.btn[disabled]{opacity:.45}
+.mini{flex:0 0 auto;font-size:13px;font-weight:800;padding:9px 13px;border-radius:11px;background:var(--accent);color:#fff;white-space:nowrap}
+.mini.soft{background:var(--accent-light);color:var(--accent)}
+.mini.gray{background:var(--g100);color:var(--g600)}
+.done-line{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--green)}
+.done-line svg{width:18px;height:18px}
+.done-line button{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--g500);text-decoration:underline;text-underline-offset:3px}
+.note{word-break:keep-all;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);padding:11px 13px;font-size:12px;color:var(--g600);font-weight:500;line-height:1.6}
+
+/* ── 기록 목록 ───────────────────────────── */
+.rec{display:flex;align-items:center;gap:12px;padding:13px 0;width:100%;text-align:left}
+.rec + .rec{border-top:1px solid var(--g100)}
+.rec-d{flex:0 0 44px;font-size:12px;font-weight:700;color:var(--g500);line-height:1.25}
+.rec-d b{display:block;font-size:15px;font-weight:800;color:var(--g800)}
+.rec-n{flex:1;min-width:0;font-size:14.5px;font-weight:700;word-break:keep-all}
+.rec-a{flex:0 0 auto;font-size:15px;font-weight:800;white-space:nowrap}
+.rec-a.minus{color:var(--red)}
+.empty{font-size:13px;color:var(--g500);font-weight:500;text-align:center;padding:18px 0}
+
+/* ── 계획 ───────────────────────────── */
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum div{background:var(--g50);border-radius:14px;padding:12px 13px}
+.sum small{display:block;font-size:11.5px;font-weight:700;color:var(--g500)}
+.sum b{display:block;font-size:17px;font-weight:900;margin-top:2px;white-space:nowrap}
+.sum b.acc{color:var(--accent)}
+.sum-note{font-size:12.5px;font-weight:600;color:var(--g600);margin-top:12px;word-break:keep-all;line-height:1.55}
+.sum-note b{color:var(--accent)}
+.graph svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;padding:11px 12px;border-radius:12px;background:var(--g50);font-size:12.5px;font-weight:700;color:var(--g700)}
+.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.legend i{display:inline-block;width:16px;height:4px;border-radius:2px}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--accent-2) 0 4px,transparent 4px 7px)}
+.legend i.dot{width:9px;height:9px;border-radius:50%}
+.month{font-size:12.5px;font-weight:800;color:var(--g500);padding:14px 0 4px}
+.prow{display:flex;align-items:center;gap:10px;padding:11px 0;width:100%;text-align:left}
+.prow + .prow{border-top:1px solid var(--g100)}
+.prow-d{flex:0 0 52px;font-size:13px;font-weight:800;color:var(--g800);white-space:nowrap}
+.prow-d small{font-size:11px;font-weight:600;color:var(--g500);margin-left:2px}
+.prow-n{flex:1;min-width:0;font-size:13.5px;font-weight:700;word-break:keep-all}
+.prow-n em{display:inline-block;font-style:normal;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:5px;vertical-align:1px}
+.st-done{background:var(--green-light);color:var(--green)}
+.st-skip{background:var(--g100);color:var(--g500)}
+.st-late{background:var(--red-light);color:var(--red)}
+.st-soon{background:var(--accent-light);color:var(--accent)}
+.prow-a{flex:0 0 auto;text-align:right;font-size:14px;font-weight:800;white-space:nowrap}
+.prow-a small{display:block;font-size:11px;font-weight:600;color:var(--g500)}
+.prow-a.q{color:var(--accent);font-size:13px}
+.prow.skip .prow-n,.prow.skip .prow-a{color:var(--g400);text-decoration:line-through}
+.prow.goal{width:auto;background:var(--accent-light);margin:6px -18px 0;padding:13px 18px;border-radius:0 0 var(--r-lg) var(--r-lg)}
+.prow.goal .prow-n{color:var(--accent-dark);font-weight:900}
+
+/* ── 더보기 ───────────────────────────── */
+.set{display:flex;align-items:center;gap:12px;padding:15px 0;width:100%;text-align:left}
+.set + .set{border-top:1px solid var(--g100)}
+.set-n{flex:1;min-width:0;font-size:15px;font-weight:700}
+.set-n small{display:block;font-size:12px;font-weight:500;color:var(--g500);margin-top:1px;word-break:keep-all}
+.set-v{flex:0 0 auto;font-size:13.5px;font-weight:700;color:var(--g600);white-space:nowrap}
+.set svg.chev{flex:0 0 auto;width:16px;height:16px;color:var(--g400)}
+.set.danger .set-n{color:var(--red)}
+.clog{padding:12px 0}
+.clog + .clog{border-top:1px solid var(--g100)}
+.clog-top{display:flex;align-items:center;gap:8px}
+.clog-v{font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-light);padding:3px 8px;border-radius:7px}
+.clog-top b{font-size:14.5px;font-weight:800}
+.clog ul{margin:8px 0 0 18px;font-size:13px;color:var(--g600);font-weight:500;line-height:1.7}
+.foot{font-size:11.5px;color:var(--g400);text-align:center;font-weight:600;margin:20px 0 6px}
+
+/* ── 아래 탭 ───────────────────────────── */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;z-index:60;display:grid;grid-template-columns:repeat(3,1fr);
+  padding:8px 18px calc(var(--safe-b) + 8px);background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-top:1px solid rgba(0,0,0,.05)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;color:var(--g400);font-size:11px;font-weight:800;transition:color .15s}
+.tab svg{width:25px;height:25px}
+.tab.on{color:var(--accent)}
+
+/* ── 아래에서 올라오는 창 · 알림 ───────────────────────────── */
+.sheet-bg{position:fixed;inset:0;background:rgba(20,12,6,.45);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;background:#fff;z-index:91;
+  border-radius:24px 24px 0 0;padding:26px 20px calc(var(--safe-b) + 18px);transition:transform .32s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}
+.sheet.on{transform:translate(-50%,0)}
+.sheet h3{font-size:19px;font-weight:900;margin-bottom:4px;word-break:keep-all}
+.sheet > p{font-size:13px;color:var(--g500);font-weight:500;margin-bottom:16px;word-break:keep-all;line-height:1.6}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:800;color:var(--g600);margin-bottom:6px}
+.field input,.field textarea{width:100%;background:var(--g100);border-radius:13px;padding:13px 14px;font-size:16px;font-weight:700}
+.field .desc{font-size:11.5px;color:var(--g500);font-weight:500;margin-top:5px;word-break:keep-all}
+.field textarea{font-size:12px;font-weight:500;min-height:120px;resize:none;word-break:break-all}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--g100);border-radius:13px;padding:4px;margin-bottom:14px}
+.seg button{padding:10px;border-radius:10px;font-size:14px;font-weight:800;color:var(--g500)}
+.seg button.on{background:#fff;color:var(--g900);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;font-size:14.5px;font-weight:700}
+.toggle i{position:relative;width:48px;height:29px;border-radius:99px;background:var(--g300);transition:background .2s}
+.toggle i::after{content:'';position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.toggle.on i{background:var(--green)}
+.toggle.on i::after{transform:translateX(19px)}
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translate(-50%,16px);background:var(--g900);color:#fff;font-size:13.5px;font-weight:700;
+  padding:12px 18px;border-radius:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:120;width:max-content;max-width:calc(100% - 40px);text-align:center;word-break:keep-all}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ── 토익 점수 바퀴 · 구간 막대 (아이폰 저축 앱에서 옮김) ───────────────── */
+.tsb{margin-top:14px}
+.tsb-track{position:relative;height:14px;border-radius:7px;overflow:hidden;
+  background:linear-gradient(90deg,var(--g100) 20.4%,#1E9E721F 20.4% 40.8%,#2F78D61F 40.8% 61.2%,#8A4FD61F 61.2% 81.6%,#E0930A24 81.6%)}
+.tsb-track i{position:absolute;left:0;top:0;bottom:0;width:var(--p);border-radius:7px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 55%,#fff),var(--c));transition:width .45s cubic-bezier(.2,.8,.2,1),background .35s}
+.tsb-track b{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff}
+.tsb-marks{position:relative;height:31px;margin-top:6px}
+.tsb-marks span{position:absolute;top:0;transform:translateX(-50%);text-align:center;font-size:10.5px;font-weight:600;color:var(--g400);line-height:1.25;white-space:nowrap}
+.tsb-marks em{display:block;font-style:normal;font-size:12.5px;font-weight:800;color:var(--t);opacity:.5}
+.tsb-marks span.on{color:var(--t);font-weight:800}
+.tsb-marks span.on em{opacity:1}
+.tsw{position:relative;display:flex;justify-content:center;align-items:center;gap:4px;height:200px;margin:0 0 2px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 30%,#000 70%,transparent)}
+.tsw::before{content:'';position:absolute;left:12%;right:12%;top:80px;height:40px;border-radius:12px;background:var(--g100)}
+.tsw-col{position:relative;width:62px;height:200px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y}
+.tsw-col::-webkit-scrollbar{display:none}
+.tsw-sp{display:block;height:40px}
+.tsw-i{display:block;width:100%;height:40px;scroll-snap-align:center;font-size:23px;font-weight:700;color:var(--g400);font-variant-numeric:tabular-nums;transition:color .15s,transform .15s}
+.tsw-i.on{color:var(--g900);font-weight:900;transform:scale(1.18)}
+.tsw-u{position:relative;font-size:16px;font-weight:800;color:var(--g600);margin-left:4px}
+.ts-say{min-height:70px;margin:12px 0 4px;font-size:13px;font-weight:600;color:var(--g700);line-height:1.6;word-break:keep-all}
+.tiers{margin-top:4px}
+.tiers div{display:flex;justify-content:space-between;padding:9px 0;font-size:14px;font-weight:700}
+.tiers div + div{border-top:1px solid var(--g100)}
+.tiers b{font-weight:900}
+
+/* ── 산 날 ───────────────────────────── */
+.fx{position:fixed;inset:0;z-index:110;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;text-align:center;color:#fff;
+  background:radial-gradient(90% 60% at 50% 35%,#7E5E44 0%,#3A2A1F 60%,#1B130D 100%);animation:fxIn .45s ease both}
+.fx svg.w{width:150px;height:236px;filter:drop-shadow(0 18px 28px rgba(0,0,0,.45));animation:fxPop .8s cubic-bezier(.2,1.3,.4,1) .15s both}
+.fx h2{font-size:26px;font-weight:900;letter-spacing:-0.04em;margin-top:22px;word-break:keep-all}
+.fx p{font-size:14px;font-weight:600;color:rgba(255,255,255,.72);margin-top:8px;line-height:1.65;word-break:keep-all}
+.fx .btn{max-width:320px;margin-top:26px;background:#F1D7B3;color:#3A2A1F;box-shadow:none}
+.fx i.cf{position:absolute;top:-14px;width:7px;height:12px;border-radius:2px;opacity:0;animation:cf 3s var(--d) ease-in forwards}
+@keyframes fxIn{from{opacity:0}to{opacity:1}}
+@keyframes fxPop{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:none}}
+@keyframes cf{0%{opacity:0;transform:translate(0,0) rotate(var(--r))}10%{opacity:1}100%{opacity:0;transform:translate(var(--x),105vh) rotate(calc(var(--r) + 600deg))}}
+@media (prefers-reduced-motion:reduce){.ring-t,.tsb-track i{transition:none}.fx,.fx svg.w{animation:none}.fx i.cf{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="appbar-row">
+      <h1 id="ab-title"></h1>
+      <span class="chip-day tnum" id="ab-day"></span>
+    </div>
+  </header>
+  <main>
+    <section class="view on" id="v-home"></section>
+    <section class="view" id="v-plan"></section>
+    <section class="view" id="v-more"></section>
+  </main>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+<div class="sheet-bg" id="sheet-bg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet" role="dialog"></div>
+<div class="toast" id="toast"></div>
+<div id="fx-root"></div>
+<script>
+'use strict';
+/* ══════════════════════════════════════════════════════════════
+   애플워치 저축 1.0
+   · 목표: 애플워치 시리즈 12 (GPS · 46mm · 다크 브론즈) 739,000원
+   · 모으는 돈: 주급(월요일 · 1/1 전 10만 · 뒤 8만) + 구미 청년월세 지원금(매달 25일, 1~3월 빼고) + 토익 지원금(11/10 · 점수 따라)
+   · 토익은 점수를 적기 전엔 금액을 숨기고 계획에서 뺀다 (아이폰 저축 앱 1.33의 2안 그대로)
+   · 기록은 이 폰에만 — 아이폰 앱 껍데기가 파일로도 따로 저장한다 (window.webkit.messageHandlers.store)
+   ══════════════════════════════════════════════════════════════ */
+const VERSION = '1.0';
+const KEY = 'watch-savings-v1';
+const CHANGELOG = [
+  {v: '1.0', n: '첫 판', d: ['애플워치 시리즈 12 저축 시작', '주급 · 청년월세 · 토익 지원금으로 모아요', '토익 점수는 바퀴로 적어요', '계획 그래프와 예상 구매일']}
+];
+
+/* ── 날짜 · 숫자 ───────────────────────────── */
+const pad = n => String(n).padStart(2, '0');
+const pd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (s, n) => { const d = pd(s); d.setDate(d.getDate() + n); return iso(d); };
+const mondayOf = s => { const d = pd(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); };
+const dday = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+const md = s => s ? `${+s.slice(5, 7)}/${+s.slice(8, 10)}` : '';
+const mdw = s => s ? `${md(s)} (${DOW[pd(s).getDay()]})` : '';
+const fmt = n => Math.round(n).toLocaleString('ko-KR');
+const man = n => { const v = Math.round(n / 1000) / 10; return (Number.isInteger(v) ? v : v.toFixed(1)) + '만'; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const num = s => Number(String(s).replace(/[^\d-]/g, '')) || 0;
+let today = () => iso(new Date());
+const nowHour = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+
+/* ── 기록 ───────────────────────────── */
+const DEFAULT_CFG = {
+  product: '애플워치 시리즈 12', spec: 'GPS · 46mm · 다크 브론즈 알루미늄', band: '다크 브론즈 밀레니즈 루프 M/L', goal: 739000,
+  start: '2026-10-12',                       // 첫 주급 저축 (월요일)
+  raise: '2027-01-01', wkBefore: 100000, wkAfter: 80000,   // 1월부터 주급 8만
+  aidOn: true, aidName: '구미 청년월세 지원금', aid: 100000, aidDay: 25, aidStart: '2026-10', aidSkip: ['01', '02', '03'],
+  toeicOn: true, toeicTest: '2026-10-31', toeicDay: '2026-11-10',    // 점수는 그날 낮 12시 발표
+  toeicDad: 400000, toeicMom7: 100000, toeicMom8: 200000, toeicMom9: 300000,
+  toeicScore: '', toeicGot: '', toeicGotAmt: 0,
+  bought: ''
+};
+const fresh = () => ({v: 1, cfg: JSON.parse(JSON.stringify(DEFAULT_CFG)), weeks: {}, aids: {}, extras: []});
+function fix(st){
+  const s = st && typeof st === 'object' ? st : fresh();
+  s.cfg = Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)), s.cfg || {});
+  s.weeks = s.weeks && typeof s.weeks === 'object' ? s.weeks : {};
+  s.aids = s.aids && typeof s.aids === 'object' ? s.aids : {};
+  s.extras = Array.isArray(s.extras) ? s.extras : [];
+  s.v = 1;
+  return s;
+}
+const native = (name, body) => { try{ window.webkit.messageHandlers[name].postMessage(body); return true; }catch(e){ return false; } };
+function load(){
+  let raw = null;
+  try{ raw = window.__NATIVE_SAVED || localStorage.getItem(KEY); }catch(e){}
+  try{ return fix(raw ? JSON.parse(raw) : null); }catch(e){ return fresh(); }
+}
+function save(){
+  const s = JSON.stringify(state);
+  try{ localStorage.setItem(KEY, s); }catch(e){}
+  native('store', s);
+}
+let state = load();
+const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const haptic = (k = 'light') => native('haptic', k);
+
+/* ── 토익 지원금: 600점부터 아빠 · 700 · 800 · 900점부터 엄마가 더 ───────────────── */
+function toeicPay(score, c = state.cfg){
+  const s = Number(score) || 0, dad = s >= 600 ? c.toeicDad : 0;
+  const mom = s >= 900 ? c.toeicMom9 : s >= 800 ? c.toeicMom8 : s >= 700 ? c.toeicMom7 : 0;
+  return {dad, mom, total: dad + mom};
+}
+const toeicSplit = p => p.total ? `아빠 ${man(p.dad)}${p.mom ? ` + 엄마 ${man(p.mom)}` : ''}` : '600점이 안 되면 이번엔 없어요';
+const toeicOpen = () => { const c = state.cfg, t = today(); return t > c.toeicDay || (t === c.toeicDay && nowHour() >= 12); };
+const toeicHidden = (c = state.cfg) => c.toeicOn && c.toeicScore === '' && !c.toeicGot;
+
+/* ── 계획: 주급 · 지원금 · 토익 · 입출금을 날짜순으로 ───────────────── */
+const ORDER = {extra: 0, week: 1, aid: 2, toeic: 3};
+function items(st = state){
+  const c = st.cfg, out = [];
+  let d = mondayOf(c.start);
+  for(let k = 0; k < 160; k++){
+    const r = st.weeks[d];
+    out.push({type: 'week', key: d, date: d, name: '주급 저축', plan: d < c.raise ? c.wkBefore : c.wkAfter,
+      got: r && r.a != null ? r.a : null, gotDate: r && r.d || '', skip: !!(r && r.skip)});
+    d = addDays(d, 7);
+  }
+  if(c.aidOn && c.aid > 0 && /^\d{4}-\d{2}$/.test(c.aidStart)){
+    let [y, m] = c.aidStart.split('-').map(Number);
+    for(let k = 0; k < 40; k++){
+      const mm = pad(m), key = `${y}-${mm}`;
+      if(!c.aidSkip.includes(mm)){
+        const day = Math.min(Math.max(1, c.aidDay), new Date(y, m, 0).getDate()), r = st.aids[key];
+        out.push({type: 'aid', key, date: `${key}-${pad(day)}`, name: c.aidName, plan: c.aid,
+          got: r && r.a != null ? r.a : null, gotDate: r && r.d || '', skip: !!(r && r.skip)});
+      }
+      if(++m > 12){ m = 1; y++; }
+    }
+  }
+  if(c.toeicOn){
+    const s = c.toeicScore;
+    out.push({type: 'toeic', key: 'toeic', date: c.toeicDay, name: s !== '' ? `토익 ${s}점 지원금` : '토익 지원금',
+      plan: s !== '' ? toeicPay(s, c).total : 0, hidden: toeicHidden(c),
+      got: c.toeicGot ? c.toeicGotAmt : null, gotDate: c.toeicGot || '', skip: false});
+  }
+  st.extras.forEach(e => out.push({type: 'extra', key: e.id, date: e.d, name: e.memo || (e.a < 0 ? '출금' : '입금'), plan: 0, got: e.a, gotDate: e.d, skip: false}));
+  return out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : ORDER[a.type] - ORDER[b.type]);
+}
+// 날짜순으로 쌓으면서 목표에 닿는 줄을 찾는다. 밀린 것(오늘 전인데 안 들어옴)은 오늘 들어온다고 친다
+function project(st = state, opt = {}){
+  const c = st.cfg, t = today(), all = items(st), rows = [];
+  let cum = 0, hit = '', hitRow = -1;
+  for(const i of all){
+    let add = 0, status;
+    if(i.got != null){ add = i.got; status = 'done'; }
+    else if(i.skip){ status = 'skip'; }
+    else if(i.hidden && !opt.toeic600){ status = 'hidden'; }
+    else{
+      add = i.hidden ? toeicPay(600, c).total : i.plan;
+      status = i.date < t ? 'late' : 'plan';
+      if(add <= 0 && i.type !== 'toeic') continue;
+    }
+    const pastGoal = cum >= c.goal;
+    if(pastGoal && status !== 'done') continue;      // 목표에 닿은 뒤의 예정 줄은 보이지 않는다
+    cum += add;
+    rows.push(Object.assign({}, i, {status, add, cum}));
+    if(!hit && cum >= c.goal){ hit = i.got != null ? (i.gotDate || i.date) : (i.date < t ? t : i.date); hitRow = rows.length - 1; }
+  }
+  return {rows, hit, hitRow};
+}
+function totals(st = state){
+  const c = st.cfg, all = items(st);
+  const saved = all.reduce((s, i) => s + (i.got || 0), 0);
+  const P = project(st);
+  const P6 = toeicHidden(c) ? project(st, {toeic600: true}) : null;
+  return {saved, goal: c.goal, remain: Math.max(0, c.goal - saved), pct: Math.max(0, Math.min(100, saved / c.goal * 100)),
+    reached: saved >= c.goal, hit: P.hit, rows: P.rows, hitRow: P.hitRow, hit600: P6 ? P6.hit : ''};
+}
+
+/* ── 그림: 애플워치 (화면에 저축 고리) ───────────────── */
+function watchSVG(pct, big){
+  const r = 25, C = 2 * Math.PI * r, off = C * (1 - Math.max(0, Math.min(100, pct)) / 100);
+  const mesh = Array.from({length: 11}, (_, k) => `<line x1="35" x2="85" y1="${3 + k * 4}" y2="${3 + k * 4}"/>`).join('')
+             + Array.from({length: 11}, (_, k) => `<line x1="35" x2="85" y1="${147 + k * 4}" y2="${147 + k * 4}"/>`).join('');
+  const id = big ? 'B' : 'S';
+  return `<svg class="${big ? 'w' : ''}" viewBox="0 0 120 190" aria-hidden="true">
+    <defs>
+      <linearGradient id="band${id}" x1="0" x2="1"><stop offset="0" stop-color="#5A4231"/><stop offset=".5" stop-color="#8F6E52"/><stop offset="1" stop-color="#5A4231"/></linearGradient>
+      <linearGradient id="case${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9876A"/><stop offset=".45" stop-color="#6E513D"/><stop offset="1" stop-color="#4A3528"/></linearGradient>
+      <linearGradient id="ring${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6DDB8"/><stop offset="1" stop-color="#C08F5F"/></linearGradient>
+    </defs>
+    <rect x="34" y="0" width="52" height="50" rx="4" fill="url(#band${id})"/>
+    <rect x="34" y="140" width="52" height="50" rx="4" fill="url(#band${id})"/>
+    <g stroke="#3B2A1E" stroke-opacity=".35" stroke-width=".8">${mesh}</g>
+    <rect x="16" y="34" width="88" height="122" rx="27" fill="url(#case${id})"/>
+    <rect x="16.8" y="34.8" width="86.4" height="120.4" rx="26.4" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.2"/>
+    <rect x="103" y="68" width="7" height="22" rx="3" fill="#8A6A50"/>
+    <rect x="104" y="100" width="4" height="18" rx="2" fill="#6E513D"/>
+    <rect x="22" y="40" width="76" height="110" rx="22" fill="#0B0A09"/>
+    <circle cx="60" cy="95" r="${r}" fill="none" stroke="#2C2520" stroke-width="8"/>
+    <circle class="ring-t" cx="60" cy="95" r="${r}" fill="none" stroke="url(#ring${id})" stroke-width="8" stroke-linecap="round"
+      stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 60 95)"/>
+  </svg>`;
+}
+const IC = {
+  watch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="3.5"/><path d="M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8L15 18"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>',
+  plan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3"/></svg>',
+  more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9.5l1.5 5 1.5-4 1.5 4 1.5-5M8.5 12h7"/></svg>',
+  house: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 5l8 6v8.5a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5z"/><path d="M10 20v-5h4v5"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+};
+
+/* ── 화면 그리기 ───────────────────────────── */
+let tab = 'home', drawn = false;
+function renderAll(){
+  const t = today(), c = state.cfg;
+  document.getElementById('ab-title').innerHTML = `${IC.watch}애플워치 저축`;
+  document.getElementById('ab-day').textContent = `${+t.slice(5, 7)}월 ${+t.slice(8, 10)}일 ${DOW[pd(t).getDay()]}`;
+  renderHome(); renderPlan(); renderMore();
+  document.getElementById('tabbar').innerHTML = [['home', '홈', IC.home], ['plan', '계획', IC.plan], ['more', '더보기', IC.more]]
+    .map(([k, n, ic]) => `<button class="tab${tab === k ? ' on' : ''}" onclick="go('${k}')">${ic}${n}</button>`).join('');
+  drawn = true;
+}
+function go(k){
+  if(tab === k){ window.scrollTo({top: 0, behavior: 'smooth'}); return; }
+  tab = k; haptic('select');
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + k));
+  document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('on', ['home', 'plan', 'more'][i] === k));
+  window.scrollTo(0, 0);
+}
+
+function renderHome(){
+  const c = state.cfg, t = today(), T = totals(), el = document.getElementById('v-home');
+  const pct = T.pct, pctTxt = pct >= 100 ? '100' : pct <= 0 ? '0' : pct < 10 ? pct.toFixed(1) : Math.floor(pct);
+  let foot;
+  if(c.bought) foot = `<span>산 날</span><b>${mdw(c.bought)}</b><em>${dday(c.start, c.bought) >= 0 ? Math.floor(dday(c.start, c.bought) / 7) + 1 + '주 만에' : '샀어요'}</em>`;
+  else if(T.reached) foot = `<span>목표를 채웠어요</span><b>${fmt(T.saved)}원</b><em>구매 완료 기록 ↓</em>`;
+  else if(T.hit) foot = `<span>예상 구매</span><b>${mdw(T.hit)}</b><em>${dday(t, T.hit) <= 0 ? '오늘' : 'D-' + dday(t, T.hit)}</em>`;
+  else foot = `<span>예상 구매</span><b>계획을 늘려야 해요</b>`;
+  let h = `<div class="hero${T.reached ? ' done' : ''}">
+    <div class="hero-top">
+      <div class="hero-l">
+        <div class="hero-k">${esc(c.product)}</div>
+        <div class="hero-s">${esc(c.spec)}</div>
+        <div class="hero-pct tnum">${pctTxt}<small>%</small></div>
+        <div class="hero-amt tnum">${fmt(T.saved)}원<small>/ ${fmt(c.goal)}원</small></div>
+      </div>
+      <div class="hero-r">${watchSVG(drawn ? pct : 0)}</div>
+    </div>
+    <div class="hero-bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+    <div class="hero-foot">${foot}</div>
+  </div>`;
+  if(c.bought){
+    h += `<div class="card"><div class="todo"><div class="todo-ic green">${IC.check}</div><div class="todo-m"><div class="todo-t">${esc(c.product)}를 샀어요</div>
+      <div class="todo-d">${mdw(c.start)}부터 모아서 ${mdw(c.bought)}에 샀어요 · 모은 돈 ${fmt(T.saved)}원</div></div></div>
+      <button class="btn sm" onclick="showBought()">그날 다시 보기</button></div>`;
+  } else if(T.reached){
+    h += `<div class="card"><div class="todo"><div class="todo-ic green">${IC.check}</div><div class="todo-m"><div class="todo-t">목표 달성!</div>
+      <div class="todo-d">${fmt(c.goal)}원을 다 모았어요${T.saved > c.goal ? ` · ${fmt(T.saved - c.goal)}원 더 모였어요` : ''}. 사고 나면 기록해 주세요.</div></div></div>
+      <button class="btn" style="margin-top:14px" onclick="openBuy()">구매 완료로 기록</button></div>`;
+  }
+  if(!c.bought){
+    h += `<div class="sec">이번 주 할 일</div><div class="card">${weekCard()}</div>`;
+    const inc = incomeCards();
+    if(inc) h += `<div class="sec">들어올 돈</div><div class="card">${inc}</div>`;
+  }
+  const recs = items().filter(i => i.got != null).sort((a, b) => (b.gotDate || b.date).localeCompare(a.gotDate || a.date)).slice(0, 6);
+  h += `<div class="sec" style="display:flex;justify-content:space-between;align-items:center">최근 기록<button class="mini soft" onclick="openMoney()">입금 · 출금</button></div>
+    <div class="card tight">${recs.length ? recs.map(recRow).join('') : '<div class="empty">아직 기록이 없어요. 첫 저축을 기다리는 중이에요.</div>'}</div>`;
+  el.innerHTML = h;
+  if(!drawn) requestAnimationFrame(() => requestAnimationFrame(() => {
+    const ring = el.querySelector('.ring-t'); if(!ring) return;
+    const C = 2 * Math.PI * 25; ring.setAttribute('stroke-dashoffset', (C * (1 - pct / 100)).toFixed(1));
+  }));
+}
+function recRow(i){
+  const d = i.gotDate || i.date;
+  return `<button class="rec" onclick="openRec('${i.type}','${i.key}')"><div class="rec-d"><b>${md(d)}</b>${DOW[pd(d).getDay()]}요일</div>
+    <div class="rec-n">${esc(i.name)}</div><div class="rec-a tnum${i.got < 0 ? ' minus' : ''}">${i.got < 0 ? '−' : '+'}${fmt(Math.abs(i.got))}원</div></button>`;
+}
+// 이번 주 주급 저축 + 밀린 주
+function weekCard(){
+  const c = state.cfg, t = today(), slot = mondayOf(t), start = mondayOf(c.start);
+  if(t < start) return `<div class="todo"><div class="todo-ic">${IC.coin}</div><div class="todo-m"><div class="todo-t">첫 저축은 ${mdw(start)}</div>
+    <div class="todo-d">주급에서 ${fmt(start < c.raise ? c.wkBefore : c.wkAfter)}원씩 모아요</div></div></div>`;
+  const wk = items().filter(i => i.type === 'week');
+  const late = wk.filter(i => i.date < slot && i.got == null && !i.skip);
+  const cur = wk.find(i => i.date === slot);
+  let h = '';
+  if(cur.got != null) h += `<div class="done-line">${IC.check}이번 주 ${fmt(cur.got)}원 모았어요<button onclick="undoWeek('${cur.key}')">되돌리기</button></div>`;
+  else if(cur.skip) h += `<div class="done-line" style="color:var(--g500)">이번 주는 넘어갔어요<button onclick="undoWeek('${cur.key}')">되돌리기</button></div>`;
+  else h += `<div class="todo"><div class="todo-ic">${IC.coin}</div><div class="todo-m"><div class="todo-t">이번 주 주급 저축</div>
+      <div class="todo-d">${mdw(cur.date)} 주</div></div><div class="todo-a tnum">${fmt(cur.plan)}원</div></div>
+    <div class="btn-row"><button class="btn" onclick="openWeek('${cur.key}')">저축했어요</button>
+      <button class="btn ghost" onclick="skipWeek('${cur.key}')">이번 주는 넘어갈게요</button></div>`;
+  late.forEach(i => {
+    h += `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)"><div class="todo"><div class="todo-ic red">${IC.coin}</div><div class="todo-m">
+      <div class="todo-t">밀린 주 · ${mdw(i.date)}</div><div class="todo-d">넣었으면 기록해 주세요</div></div><div class="todo-a tnum">${fmt(i.plan)}원</div></div>
+      <div class="btn-row sm"><button class="btn" onclick="openWeek('${i.key}')">저축했어요</button><button class="btn ghost" onclick="skipWeek('${i.key}')">넘어갈게요</button></div></div>`;
+  });
+  return h;
+}
+// 청년월세 · 토익
+function incomeCards(){
+  const c = state.cfg, t = today(), all = items(), out = [];
+  const aidDue = all.filter(i => i.type === 'aid' && i.got == null && !i.skip && i.date <= t);
+  const aidNext = all.find(i => i.type === 'aid' && i.got == null && !i.skip && i.date > t);
+  aidDue.forEach(i => out.push(`<div class="todo"><div class="todo-ic">${IC.house}</div><div class="todo-m"><div class="todo-t">${esc(i.name)} 들어왔나요?</div>
+      <div class="todo-d">${+i.key.slice(5)}월분 · ${mdw(i.date)}</div></div><div class="todo-a tnum">${fmt(i.plan)}원</div></div>
+    <div class="btn-row"><button class="btn" onclick="openAid('${i.key}')">들어왔어요</button>
+      <button class="btn ghost" onclick="skipAid('${i.key}')">이번 달은 안 나왔어요</button></div>`));
+  if(!aidDue.length && aidNext && !T_reached()) out.push(`<div class="todo"><div class="todo-ic">${IC.house}</div><div class="todo-m"><div class="todo-t">${esc(aidNext.name)}</div>
+      <div class="todo-d">${+aidNext.key.slice(5)}월분 · ${mdw(aidNext.date)} · D-${dday(t, aidNext.date)}</div></div><div class="todo-a tnum">${fmt(aidNext.plan)}원</div></div>`);
+  if(c.toeicOn && !c.toeicGot){
+    const open = toeicOpen(), s = c.toeicScore;
+    if(s === ''){
+      const left = dday(t, c.toeicDay);
+      const d = t < c.toeicTest ? `${mdw(c.toeicTest)} 시험 · 점수는 ${mdw(c.toeicDay)} 낮 12시에 나와요`
+        : t === c.toeicTest ? '오늘 시험이에요 · 화이팅!'
+        : !open ? (left === 0 ? '오늘 낮 12시에 점수가 나와요' : `${mdw(c.toeicDay)} 낮 12시 발표 · D-${left}`)
+        : '점수가 나왔어요 · 적으면 금액이 정해져요';
+      out.push(`<div class="todo"><div class="todo-ic">${IC.pen}</div><div class="todo-m"><div class="todo-t">토익 지원금</div><div class="todo-d">${d}</div></div>
+        ${open ? `<button class="mini" onclick="openScore()">점수 적기</button>` : `<button class="todo-a q" onclick="toeicHiddenSheet()">점수 따라</button>`}</div>`);
+    } else {
+      const p = toeicPay(s);
+      out.push(`<div class="todo"><div class="todo-ic">${IC.pen}</div><div class="todo-m"><div class="todo-t">토익 ${s}점 지원금</div>
+          <div class="todo-d">${toeicSplit(p)}${p.total ? ` · ${mdw(c.toeicDay)}` : ''}</div></div><div class="todo-a tnum">${fmt(p.total)}원</div></div>
+        ${p.total ? `<div class="btn-row"><button class="btn" onclick="openToeicGot()">받았어요</button><button class="btn ghost" onclick="openScore()">점수 고치기</button></div>`
+          : `<button class="btn ghost sm" onclick="openScore()">점수 고치기</button>`}`);
+    }
+  }
+  return out.map((x, k) => k ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${x}</div>` : x).join('');
+}
+const T_reached = () => totals().reached;
+
+/* ── 계획 탭 ───────────────────────────── */
+function renderPlan(){
+  const c = state.cfg, t = today(), T = totals(), el = document.getElementById('v-plan');
+  const weeks = T.hit ? Math.max(1, Math.ceil((dday(mondayOf(c.start), T.hit) + 1) / 7)) : 0;
+  let note = '';
+  if(c.bought) note = `${mdw(c.bought)}에 샀어요. 수고했어요!`;
+  else if(T.reached) note = '목표를 다 채웠어요. 사고 나면 홈에서 구매 완료로 기록해 주세요.';
+  else if(T.hit600 && T.hit600 !== T.hit) note = `토익 지원금은 점수가 나와야 금액이 정해져서 아직 계획에 넣지 않았어요. <b>600점 이상이면 구매일이 ${mdw(T.hit600)}</b>로 당겨져요.`;
+  else if(toeicHidden(c)) note = '토익 지원금은 점수가 나와야 금액이 정해져서 아직 계획에 넣지 않았어요.';
+  let h = `<div class="sec">한눈에</div><div class="card">
+    <div class="sum">
+      <div><small>예상 구매일</small><b class="acc">${c.bought ? mdw(c.bought) : T.hit ? mdw(T.hit) : '—'}</b></div>
+      <div><small>남은 금액</small><b class="tnum">${fmt(T.remain)}원</b></div>
+      <div><small>목표</small><b class="tnum">${fmt(c.goal)}원</b></div>
+      <div><small>걸리는 기간</small><b>${weeks ? weeks + '주' : '—'}</b></div>
+    </div>${note ? `<div class="sum-note">${note}</div>` : ''}</div>`;
+  h += `<div class="sec">모이는 모습</div><div class="card graph">${graphSVG(T)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>모은 돈</span><span><i class="dash"></i>계획</span>
+      <span><i class="dot" style="background:#E8B04B"></i>지원금</span><span><i style="background:var(--g300)"></i>목표 ${man(c.goal)}</span></div></div>`;
+  let rows = '', month = '';
+  T.rows.forEach((r, k) => {
+    const m = r.date.slice(0, 7);
+    if(m !== month){ month = m; rows += `<div class="month">${+m.slice(0, 4) !== +t.slice(0, 4) ? m.slice(0, 4) + '년 ' : ''}${+m.slice(5)}월</div>`; }
+    const st = r.status === 'done' ? '<em class="st-done">완료</em>' : r.status === 'skip' ? '<em class="st-skip">넘어감</em>'
+      : r.status === 'late' ? '<em class="st-late">밀림</em>' : r.date === t || (r.type === 'week' && r.date === mondayOf(t)) ? '<em class="st-soon">이번 주</em>' : '';
+    const amt = r.status === 'hidden' ? `<div class="prow-a q">점수 따라</div>`
+      : `<div class="prow-a tnum">${r.add < 0 ? '−' : ''}${fmt(Math.abs(r.status === 'skip' ? r.plan : r.add))}원<small>누적 ${man(r.cum)}</small></div>`;
+    const tap = r.status === 'hidden' ? 'toeicHiddenSheet()' : r.got != null ? `openRec('${r.type}','${r.key}')` : r.type === 'week' ? `openWeek('${r.key}')`
+      : r.type === 'aid' ? `openAid('${r.key}')` : r.type === 'toeic' ? (c.toeicScore !== '' ? 'openToeicGot()' : 'toeicHiddenSheet()') : '';
+    rows += `<button class="prow${r.status === 'skip' ? ' skip' : ''}" onclick="${tap}"><div class="prow-d tnum">${md(r.date)}<small>${DOW[pd(r.date).getDay()]}</small></div>
+      <div class="prow-n">${esc(r.name)}${st}</div>${amt}</button>`;
+    if(k === T.hitRow && !c.bought) rows += `<div class="prow goal"><div class="prow-d tnum">${md(T.hit)}</div><div class="prow-n">🎯 ${esc(c.product)} 구매</div><div class="prow-a tnum">${man(c.goal)}</div></div>`;
+  });
+  if(!T.hit && !T.reached) rows += `<div class="empty">지금 계획으로는 목표에 닿지 않아요. 더보기에서 금액을 늘려 주세요.</div>`;
+  h += `<div class="sec">계획</div><div class="card tight" style="padding-bottom:${T.hitRow >= 0 && !c.bought ? 0 : 6}px">${rows}</div>`;
+  el.innerHTML = h;
+}
+// 모이는 모습: 계획(점선) · 모은 돈(실선) · 목표(회색) — 글씨는 그림 밖 아래 상자에
+function graphSVG(T){
+  const c = state.cfg, t = today(), W = 340, H = 170, L = 6, R = 6, TOP = 10, B = 22;
+  const x0 = mondayOf(c.start), end = [T.hit, c.bought, t].filter(Boolean).sort().pop();
+  const span = Math.max(14, dday(x0, end) + 5);
+  const X = d => L + Math.max(0, Math.min(1, dday(x0, d) / span)) * (W - L - R);
+  const ymax = Math.max(c.goal, ...T.rows.map(r => r.cum)) * 1.06;
+  const Y = v => TOP + (1 - Math.max(0, v) / ymax) * (H - TOP - B);
+  // 계획 선은 실제로 들어오는 날 순서로 (들어온 건 들어온 날 · 밀린 건 오늘)
+  const pts = T.rows.map(r => ({d: r.status === 'done' ? (r.gotDate || r.date) : r.status === 'late' ? t : r.date, a: r.add, r}))
+    .sort((a, b) => a.d.localeCompare(b.d));
+  let plan = `M${X(x0).toFixed(1)},${Y(0).toFixed(1)}`, cum = 0;
+  pts.forEach(p => { cum += p.a; p.cum = cum; plan += ` H${X(p.d).toFixed(1)} V${Y(cum).toFixed(1)}`; });
+  const got = items().filter(i => i.got != null).map(i => ({d: i.gotDate || i.date, a: i.got})).sort((a, b) => a.d.localeCompare(b.d));
+  let act = `M${X(x0).toFixed(1)},${Y(0).toFixed(1)}`;
+  cum = 0;
+  got.forEach(g => { cum += g.a; act += ` H${X(g.d).toFixed(1)} V${Y(cum).toFixed(1)}`; });
+  act += ` H${X(c.bought || t).toFixed(1)}`;
+  const dots = pts.filter(p => (p.r.type === 'aid' || p.r.type === 'toeic') && p.r.status !== 'hidden' && p.r.status !== 'skip')
+    .map(p => `<circle cx="${X(p.d).toFixed(1)}" cy="${Y(p.cum).toFixed(1)}" r="4" fill="#E8B04B" stroke="#fff" stroke-width="1.5"/>`).join('');
+  // 아래 눈금: 달마다 1일
+  let ticks = '', d = pd(x0); d.setDate(1); d.setMonth(d.getMonth() + 1);
+  for(let k = 0; k < 24; k++){ const s = iso(d); if(s > addDays(x0, span)) break;
+    ticks += `<line x1="${X(s).toFixed(1)}" x2="${X(s).toFixed(1)}" y1="${TOP}" y2="${H - B}" stroke="#EEE9E3"/><text x="${X(s).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8F877E">${d.getMonth() + 1}월</text>`;
+    d.setMonth(d.getMonth() + 1); }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="계획과 모은 돈 그래프">
+    ${ticks}
+    <line x1="${L}" x2="${W - R}" y1="${Y(c.goal).toFixed(1)}" y2="${Y(c.goal).toFixed(1)}" stroke="#D6D0C9" stroke-width="2"/>
+    <line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="#E8E3DD"/>
+    <path d="${plan}" fill="none" stroke="#A8865F" stroke-width="2.2" stroke-dasharray="5 4" stroke-linejoin="round"/>
+    <path d="${act}" fill="none" stroke="#7B5B41" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}
+    <line x1="${X(t).toFixed(1)}" x2="${X(t).toFixed(1)}" y1="${TOP}" y2="${H - B}" stroke="#7B5B41" stroke-opacity=".35" stroke-dasharray="2 3"/>
+    ${T.hit && !c.bought ? `<circle cx="${X(T.hit).toFixed(1)}" cy="${Y(c.goal).toFixed(1)}" r="5.5" fill="#7B5B41" stroke="#fff" stroke-width="2"/>` : ''}
+  </svg>`;
+}
+
+/* ── 더보기 ───────────────────────────── */
+function renderMore(){
+  const c = state.cfg, el = document.getElementById('v-more');
+  const set = (fn, n, sub, v, cls = '') => `<button class="set ${cls}" onclick="${fn}"><div class="set-n">${n}${sub ? `<small>${sub}</small>` : ''}</div>${v != null ? `<div class="set-v tnum">${v}</div>` : ''}${IC.chev}</button>`;
+  el.innerHTML = `<div class="sec">목표</div><div class="card tight">
+      ${set('editGoal()', esc(c.product), esc(c.spec + ' · ' + c.band), fmt(c.goal) + '원')}</div>
+    <div class="sec">모으는 돈</div><div class="card tight">
+      ${set('editWeekly()', '주급 저축', `${mdw(mondayOf(c.start))}부터 매주 월요일`, `${man(c.wkBefore)}${c.wkAfter !== c.wkBefore ? ' → ' + man(c.wkAfter) : ''}`)}
+      ${set('editAid()', esc(c.aidName), c.aidOn ? `매달 ${c.aidDay}일 · ${c.aidSkip.map(Number).join(' · ')}월 빼고` : '꺼 둠', c.aidOn ? man(c.aid) : '')}
+      ${set('editToeic()', '토익 지원금', c.toeicOn ? `${mdw(c.toeicTest)} 시험 · ${mdw(c.toeicDay)} 발표` : '꺼 둠', c.toeicOn ? (c.toeicScore !== '' ? c.toeicScore + '점' : '점수 따라') : '')}
+    </div>
+    <div class="sec">기록</div><div class="card tight">
+      ${set('openMoney()', '입금 · 출금', '계획에 없던 돈을 넣거나 뺄 때')}
+      ${set('openBackupOut()', '기록 내보내기', '글자로 복사해 카톡 나에게 같은 곳에 보관')}
+      ${set('openBackupIn()', '기록 가져오기', '보관해 둔 글자를 붙여 넣기')}
+      ${c.bought ? set('openUnbuy()', '구매 기록 취소', mdw(c.bought) + '에 산 걸로 기록돼 있어요') : ''}
+      ${set('openReset()', '처음부터 다시', '모든 기록을 지워요', null, 'danger')}
+    </div>
+    <div class="sec">업데이트 내역</div><div class="card tight">${CHANGELOG.map(l => `<div class="clog"><div class="clog-top"><span class="clog-v">${l.v}</span><b>${l.n}</b></div>
+      <ul>${l.d.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
+    <div class="foot">애플워치 저축 ${VERSION}</div>`;
+}
+
+/* ── 창 · 알림 ───────────────────────────── */
+function openSheet(html){
+  const s = document.getElementById('sheet');
+  s.innerHTML = html; s.scrollTop = 0;
+  s.classList.add('on'); document.getElementById('sheet-bg').classList.add('on');
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('on'); document.getElementById('sheet-bg').classList.remove('on');
+}
+let toastT = 0;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200);
+}
+const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+const moneyInput = (id, v, label, desc) => `<div class="field"><label for="${id}">${label}</label>
+  <input id="${id}" inputmode="numeric" value="${v ? fmt(v) : ''}" oninput="this.value = this.value.replace(/[^\\d]/g,'') ? Number(this.value.replace(/[^\\d]/g,'')).toLocaleString('ko-KR') : ''">${desc ? `<div class="desc">${desc}</div>` : ''}</div>`;
+const dateInput = (id, v, label, desc) => `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="date" value="${v}">${desc ? `<div class="desc">${desc}</div>` : ''}</div>`;
+const textInput = (id, v, label) => `<div class="field"><label for="${id}">${label}</label><input id="${id}" value="${esc(v)}"></div>`;
+function commit(msg){ save(); closeSheet(); renderAll(); if(msg) toast(msg); haptic('success'); }
+
+/* ── 주급 ───────────────────────────── */
+function openWeek(key){
+  const i = items().find(x => x.type === 'week' && x.key === key);
+  if(!i) return;
+  openSheet(`<h3>${mdw(key)} 주 저축</h3><p>주급에서 모은 돈을 적어 주세요.</p>
+    ${moneyInput('w-a', i.plan, '모은 돈')}
+    <button class="btn" onclick="saveWeek('${key}')">저축했어요</button>
+    <button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function saveWeek(key){
+  const a = num(val('w-a'));
+  if(a <= 0) return toast('금액을 적어 주세요');
+  const before = totals();
+  state.weeks[key] = {a, d: today()};
+  commit(`${fmt(a)}원 모았어요` + afterTxt(before));
+}
+function skipWeek(key){ state.weeks[key] = {skip: 1, d: today()}; commit('이번 주는 넘어갔어요 · 계획이 한 주 늘어나요'); }
+function undoWeek(key){ delete state.weeks[key]; commit('되돌렸어요'); }
+const afterTxt = before => { const a = totals(); return a.reached && !before.reached ? ' · 목표 달성!' : a.hit && before.hit && a.hit !== before.hit ? ` · 구매일 ${md(a.hit)}` : ''; };
+
+/* ── 청년월세 ───────────────────────────── */
+function openAid(key){
+  const i = items().find(x => x.type === 'aid' && x.key === key);
+  if(!i) return;
+  openSheet(`<h3>${esc(i.name)}</h3><p>${+key.slice(5)}월분 · ${mdw(i.date)}</p>
+    ${moneyInput('a-a', i.plan, '들어온 돈')}
+    <button class="btn" onclick="saveAid('${key}')">들어왔어요</button>
+    <button class="btn ghost sm" onclick="skipAid('${key}')">이번 달은 안 나왔어요</button>`);
+}
+function saveAid(key){
+  const a = num(val('a-a'));
+  if(a <= 0) return toast('금액을 적어 주세요');
+  const before = totals();
+  state.aids[key] = {a, d: today()};
+  commit(`${fmt(a)}원 들어왔어요` + afterTxt(before));
+}
+function skipAid(key){ state.aids[key] = {skip: 1, d: today()}; commit(`${+key.slice(5)}월분은 안 나온 걸로 할게요`); }
+
+/* ── 토익 ───────────────────────────── */
+function toeicHiddenSheet(){
+  const c = state.cfg, open = toeicOpen();
+  openSheet(`<h3>토익 지원금</h3><p>점수에 따라 지급되는 돈이 달라져요. 점수가 나오면 금액이 정해지고 계획에도 들어가요.</p>
+    <div class="tiers">${[600, 700, 800, 900].map(s => `<div><span>${s}점부터</span><b class="tnum">${toeicSplit(toeicPay(s))} = ${man(toeicPay(s).total)}원</b></div>`).join('')}</div>
+    <div class="note" style="margin-top:12px">${mdw(c.toeicTest)} 시험 · 점수는 ${mdw(c.toeicDay)} 낮 12시에 나와요</div>
+    ${open ? `<button class="btn" style="margin-top:16px" onclick="openScore()">점수 적기</button>` : ''}
+    <button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+const TOEIC_TIER = [[600, '#1E9E72'], [700, '#2F78D6'], [800, '#8A4FD6'], [900, '#E0930A']];
+const toeicPos = s => Math.max(0, Math.min(100, ((Number(s) || 0) - 500) / 490 * 100));
+const toeicColor = s => (TOEIC_TIER.filter(([m]) => (Number(s) || 0) >= m).pop() || [0, '#C3C8CF'])[1];
+function toeicBarHtml(score, id){
+  const s = Number(score) || 0;
+  return `<div class="tsb"${id ? ` id="${id}"` : ''} style="--p:${toeicPos(s).toFixed(1)}%;--c:${toeicColor(s)}">
+      <div class="tsb-track"><i></i>${TOEIC_TIER.map(([m]) => `<b style="left:${toeicPos(m).toFixed(1)}%"></b>`).join('')}</div>
+      <div class="tsb-marks">${TOEIC_TIER.map(([m, col]) => `<span class="${s >= m ? 'on' : ''}" style="left:${toeicPos(m).toFixed(1)}%;--t:${col}"><em>${m}</em>${man(toeicPay(m).total)}</span>`).join('')}</div>
+    </div>`;
+}
+function toeicBarSet(el, score){
+  if(!el) return;
+  const s = Number(score) || 0;
+  el.style.setProperty('--p', toeicPos(s).toFixed(1) + '%');
+  el.style.setProperty('--c', toeicColor(s));
+  el.querySelectorAll('.tsb-marks span').forEach((x, i) => x.classList.toggle('on', s >= TOEIC_TIER[i][0]));
+}
+// 점수 바퀴: 백 · 십 · 일(0 · 5)
+const TSW_H = 40, TSW_COLS = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 5]];
+let toeicPick = 600, tswRaf = 0, tswEnd = 0;
+const toeicDigits = v => [Math.floor(v / 100) % 10, Math.floor(v / 10) % 10, v % 10 >= 5 ? 1 : 0];
+const tswCols = () => document.querySelectorAll('#ts-wheel .tsw-col');
+function toeicWheelHtml(v){
+  const d = toeicDigits(v), sp = '<i class="tsw-sp"></i>'.repeat(2);
+  return `<div class="tsw" id="ts-wheel">${TSW_COLS.map((col, k) => `<div class="tsw-col" onscroll="toeicWheelScroll()">${sp}${col.map((n, i) =>
+    `<button class="tsw-i${i === d[k] ? ' on' : ''}" onclick="toeicWheelTap(${k},${i})">${n}</button>`).join('')}${sp}</div>`).join('')}<span class="tsw-u">점</span></div>`;
+}
+function toeicWheelRead(){
+  const cols = tswCols();
+  if(cols.length !== 3) return toeicPick;
+  const idx = [...cols].map((c, k) => Math.max(0, Math.min(TSW_COLS[k].length - 1, Math.round(c.scrollTop / TSW_H))));
+  cols.forEach((c, k) => c.querySelectorAll('.tsw-i').forEach((b, i) => b.classList.toggle('on', i === idx[k])));
+  return TSW_COLS[0][idx[0]] * 100 + TSW_COLS[1][idx[1]] * 10 + TSW_COLS[2][idx[2]];
+}
+function toeicWheelScroll(){
+  if(!tswRaf) tswRaf = requestAnimationFrame(() => { tswRaf = 0; const v = toeicWheelRead(); if(v !== toeicPick){ toeicPick = v; toeicPreview(); haptic('select'); } });
+  clearTimeout(tswEnd); tswEnd = setTimeout(toeicWheelSettle, 180);
+}
+function toeicWheelSettle(){
+  const v = toeicWheelRead();
+  if(v > 990) toeicWheelSet(990, true);
+  else if(v < 10) toeicWheelSet(10, true);
+}
+function toeicWheelSet(v, smooth){
+  toeicPick = v;
+  const d = toeicDigits(v);
+  tswCols().forEach((c, k) => { if(c.scrollTo) c.scrollTo({top: d[k] * TSW_H, behavior: smooth ? 'smooth' : 'auto'}); else c.scrollTop = d[k] * TSW_H; });
+  toeicPreview();
+}
+function toeicWheelTap(k, i){ const c = tswCols()[k]; if(c && c.scrollTo) c.scrollTo({top: i * TSW_H, behavior: 'smooth'}); }
+function openScore(){
+  const c = state.cfg;
+  if(!toeicOpen() && c.toeicScore === '') return toast(`점수는 ${mdw(c.toeicDay)} 낮 12시에 나와요`);
+  toeicPick = c.toeicScore !== '' ? c.toeicScore : 600;
+  openSheet(`<h3>토익 점수</h3><p>바퀴를 쓸어 점수를 맞추면 지원금과 구매일이 바로 바뀌어요.</p>
+    ${toeicWheelHtml(toeicPick)}${toeicBarHtml(toeicPick, 'ts-bar')}
+    <div class="ts-say" id="ts-say"></div>
+    <button class="btn" onclick="saveScore()">이 점수로 할게요</button>
+    ${c.toeicScore !== '' ? `<button class="btn ghost sm" onclick="saveScore(true)">점수 지우기</button>` : `<button class="btn ghost sm" onclick="closeSheet()">닫기</button>`}`);
+  toeicWheelSet(toeicPick, false);
+}
+function toeicPreview(){
+  const say = document.getElementById('ts-say');
+  if(!say) return;
+  const v = toeicPick, c = state.cfg;
+  toeicBarSet(document.getElementById('ts-bar'), Math.min(v, 990));
+  if(v < 10 || v > 990){ say.textContent = '토익 점수는 10~990점이에요'; return; }
+  const p = toeicPay(v);
+  let msg = p.total ? `${toeicSplit(p)} = <b style="color:${toeicColor(v)}">${man(p.total)}원</b>` : '600점이 안 되면 이번엔 지원금이 없어요';
+  const before = totals(), keep = c.toeicScore;
+  c.toeicScore = v;
+  let after; try{ after = totals(); } finally { c.toeicScore = keep; }
+  if(!c.bought && !after.reached && after.hit) msg += `<br>구매일 ${before.hit && before.hit !== after.hit ? `${md(before.hit)} → ` : ''}<b>${mdw(after.hit)}</b>`;
+  else if(after.reached && !before.reached) msg += '<br>이 점수면 목표를 다 채워요!';
+  say.innerHTML = msg;
+}
+function saveScore(clear){
+  const c = state.cfg;
+  if(clear){ c.toeicScore = ''; return commit('점수를 지웠어요'); }
+  const v = toeicPick;
+  if(v < 10 || v > 990 || v % 5) return toast('토익 점수는 10~990점, 5점 단위예요');
+  const before = totals();
+  c.toeicScore = v;
+  const p = toeicPay(v);
+  commit(`토익 ${v}점 · 지원금 ${p.total ? man(p.total) + '원' : '없음'}` + afterTxt(before));
+}
+function openToeicGot(){
+  const c = state.cfg, p = toeicPay(c.toeicScore);
+  openSheet(`<h3>토익 ${c.toeicScore}점 지원금</h3><p>${toeicSplit(p)}</p>
+    ${moneyInput('t-a', p.total, '받은 돈', '실제로 받은 금액이 다르면 고쳐 주세요')}
+    <button class="btn" onclick="saveToeicGot()">받았어요</button>
+    <button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function saveToeicGot(){
+  const a = num(val('t-a'));
+  if(a <= 0) return toast('금액을 적어 주세요');
+  const before = totals();
+  state.cfg.toeicGot = today(); state.cfg.toeicGotAmt = a;
+  commit(`토익 지원금 ${fmt(a)}원 받았어요` + afterTxt(before));
+}
+
+/* ── 기록 보기 · 지우기 · 입출금 ───────────────────────────── */
+function openRec(type, key){
+  const i = items().find(x => x.type === type && x.key === key);
+  if(!i || i.got == null) return;
+  openSheet(`<h3>${esc(i.name)}</h3><p>${mdw(i.gotDate || i.date)}에 기록했어요</p>
+    <div class="note" style="font-size:15px;font-weight:800;color:var(--g900)">${i.got < 0 ? '−' : '+'}${fmt(Math.abs(i.got))}원</div>
+    <button class="btn red" style="margin-top:16px" onclick="delRec('${type}','${key}')">기록 지우기</button>
+    <button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function delRec(type, key){
+  if(type === 'week') delete state.weeks[key];
+  else if(type === 'aid') delete state.aids[key];
+  else if(type === 'toeic'){ state.cfg.toeicGot = ''; state.cfg.toeicGotAmt = 0; }
+  else state.extras = state.extras.filter(e => e.id !== key);
+  commit('기록을 지웠어요');
+}
+let moneyDir = 1;
+function openMoney(){
+  moneyDir = 1;
+  openSheet(`<h3>입금 · 출금</h3><p>계획에 없던 돈을 넣거나 뺄 때 적어요.</p>
+    <div class="seg" id="m-seg"><button class="on" onclick="setDir(1)">입금</button><button onclick="setDir(-1)">출금</button></div>
+    ${moneyInput('m-a', 0, '금액')}${textInput('m-m', '', '메모 (없어도 돼요)')}
+    <button class="btn" onclick="saveMoney()">기록하기</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function setDir(d){ moneyDir = d; document.querySelectorAll('#m-seg button').forEach((b, i) => b.classList.toggle('on', (i === 0) === (d > 0))); }
+function saveMoney(){
+  const a = num(val('m-a'));
+  if(a <= 0) return toast('금액을 적어 주세요');
+  const before = totals();
+  state.extras.push({id: uid(), d: today(), a: a * moneyDir, memo: val('m-m').trim().slice(0, 30)});
+  commit(`${fmt(a)}원 ${moneyDir > 0 ? '입금' : '출금'}했어요` + afterTxt(before));
+}
+
+/* ── 산 날 ───────────────────────────── */
+function openBuy(){
+  openSheet(`<h3>구매 완료로 기록할까요?</h3><p>${esc(state.cfg.product)} · 오늘 ${mdw(today())}</p>
+    <button class="btn" onclick="markBought()">구매 완료</button><button class="btn ghost sm" onclick="closeSheet()">아직이에요</button>`);
+}
+function markBought(){ state.cfg.bought = today(); save(); closeSheet(); renderAll(); haptic('success'); showBought(); }
+function showBought(){
+  const c = state.cfg, T = totals(), wk = Math.floor(Math.max(0, dday(mondayOf(c.start), c.bought)) / 7) + 1;
+  const n = items().filter(i => i.got != null && i.got > 0);
+  const conf = Array.from({length: 34}, (_, k) => `<i class="cf" style="left:${(k * 29) % 100}%;--d:${(k * .09 % 1.8).toFixed(2)}s;--x:${((k % 9) - 4) * 12}px;--r:${(k * 53) % 360}deg;background:${['#F1D7B3', '#C9A27A', '#FFF', '#A8865F'][k % 4]}"></i>`).join('');
+  document.getElementById('fx-root').innerHTML = `<div class="fx" onclick="if(event.target === this) closeFx()">${conf}${watchSVG(100, true)}
+    <h2>${esc(c.product)}<br>샀어요!</h2>
+    <p>${mdw(c.start)}부터 ${wk}주 동안 ${n.length}번 모아서<br>${fmt(T.saved)}원을 채웠어요.</p>
+    <button class="btn" onclick="closeFx()">고마워요</button></div>`;
+}
+function closeFx(){ document.getElementById('fx-root').innerHTML = ''; }
+function openUnbuy(){
+  openSheet(`<h3>구매 기록 취소</h3><p>${mdw(state.cfg.bought)}에 산 걸로 기록돼 있어요</p>
+    <button class="btn red" onclick="state.cfg.bought=''; commit('구매 기록을 취소했어요')">구매 기록 취소</button><button class="btn ghost sm" onclick="closeSheet()">그대로 두기</button>`);
+}
+
+/* ── 설정 ───────────────────────────── */
+function editGoal(){
+  const c = state.cfg;
+  openSheet(`<h3>목표</h3><p>값이 바뀌면 고쳐 주세요. 계획이 바로 다시 짜여요.</p>
+    ${textInput('g-p', c.product, '이름')}${textInput('g-s', c.spec, '모델')}${textInput('g-b', c.band, '밴드')}${moneyInput('g-a', c.goal, '가격')}
+    <button class="btn" onclick="saveGoal()">저장</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function saveGoal(){
+  const c = state.cfg, a = num(val('g-a'));
+  if(a <= 0) return toast('가격을 적어 주세요');
+  c.product = val('g-p').trim() || DEFAULT_CFG.product; c.spec = val('g-s').trim(); c.band = val('g-b').trim(); c.goal = a;
+  commit('목표를 고쳤어요');
+}
+function editWeekly(){
+  const c = state.cfg;
+  openSheet(`<h3>주급 저축</h3><p>매주 월요일에 주급에서 모으는 돈이에요.</p>
+    ${dateInput('k-s', c.start, '첫 저축', '월요일이 아니면 그 주 월요일로 맞춰요')}
+    <div class="two">${moneyInput('k-b', c.wkBefore, '바뀌기 전')}${moneyInput('k-a', c.wkAfter, '바뀐 뒤')}</div>
+    ${dateInput('k-r', c.raise, '금액이 바뀌는 날')}
+    <button class="btn" onclick="saveWeekly()">저장</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function saveWeekly(){
+  const c = state.cfg, s = val('k-s'), r = val('k-r'), b = num(val('k-b')), a = num(val('k-a'));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s) || !/^\d{4}-\d{2}-\d{2}$/.test(r)) return toast('날짜를 골라 주세요');
+  if(b < 0 || a < 0) return toast('금액을 확인해 주세요');
+  c.start = mondayOf(s); c.raise = r; c.wkBefore = b; c.wkAfter = a;
+  commit('주급 저축을 고쳤어요');
+}
+let aidOnPick = true;
+function editAid(){
+  const c = state.cfg; aidOnPick = c.aidOn;
+  openSheet(`<h3>${esc(c.aidName)}</h3><p>매달 들어오는 지원금이에요.</p>
+    <button class="toggle${c.aidOn ? ' on' : ''}" id="aid-on" style="width:100%" onclick="aidOnPick=!aidOnPick;this.classList.toggle('on',aidOnPick)">계획에 넣기<i></i></button>
+    ${textInput('d-n', c.aidName, '이름')}
+    <div class="two">${moneyInput('d-a', c.aid, '금액')}<div class="field"><label for="d-d">들어오는 날</label><input id="d-d" inputmode="numeric" value="${c.aidDay}"></div></div>
+    <div class="two"><div class="field"><label for="d-s">시작 달</label><input id="d-s" type="month" value="${c.aidStart}"></div>
+      <div class="field"><label for="d-k">빠지는 달</label><input id="d-k" inputmode="numeric" value="${c.aidSkip.map(Number).join(', ')}"></div></div>
+    <button class="btn" onclick="saveAidCfg()">저장</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function saveAidCfg(){
+  const c = state.cfg, day = num(val('d-d')), st = val('d-s');
+  if(day < 1 || day > 31) return toast('들어오는 날은 1~31일이에요');
+  if(!/^\d{4}-\d{2}$/.test(st)) return toast('시작 달을 골라 주세요');
+  c.aidOn = aidOnPick; c.aidName = val('d-n').trim() || DEFAULT_CFG.aidName; c.aid = num(val('d-a')); c.aidDay = day; c.aidStart = st;
+  c.aidSkip = [...new Set(val('d-k').split(/[^\d]+/).map(Number).filter(m => m >= 1 && m <= 12))].sort((a, b) => a - b).map(pad);
+  commit('지원금을 고쳤어요');
+}
+let toeicOnPick = true;
+function editToeic(){
+  const c = state.cfg; toeicOnPick = c.toeicOn;
+  openSheet(`<h3>토익 지원금</h3><p>600점부터 아빠, 700 · 800 · 900점부터 엄마가 더 줘요.</p>
+    <button class="toggle${c.toeicOn ? ' on' : ''}" style="width:100%" onclick="toeicOnPick=!toeicOnPick;this.classList.toggle('on',toeicOnPick)">계획에 넣기<i></i></button>
+    <div class="two">${dateInput('e-t', c.toeicTest, '시험 날')}${dateInput('e-d', c.toeicDay, '점수 나오는 날')}</div>
+    ${moneyInput('e-0', c.toeicDad, '아빠 (600점부터)')}
+    <div class="two">${moneyInput('e-7', c.toeicMom7, '엄마 (700점부터)')}${moneyInput('e-8', c.toeicMom8, '엄마 (800점부터)')}</div>
+    ${moneyInput('e-9', c.toeicMom9, '엄마 (900점부터)')}
+    <button class="btn" onclick="saveToeicCfg()">저장</button>
+    <button class="btn ghost sm" onclick="closeSheet();setTimeout(openScore,320)">${c.toeicScore !== '' ? `점수 고치기 (${c.toeicScore}점)` : '점수 적기'}</button>`);
+}
+function saveToeicCfg(){
+  const c = state.cfg, t = val('e-t'), d = val('e-d');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(t) || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return toast('날짜를 골라 주세요');
+  c.toeicOn = toeicOnPick; c.toeicTest = t; c.toeicDay = d;
+  c.toeicDad = num(val('e-0')); c.toeicMom7 = num(val('e-7')); c.toeicMom8 = num(val('e-8')); c.toeicMom9 = num(val('e-9'));
+  commit('토익 지원금을 고쳤어요');
+}
+
+/* ── 기록 내보내기 · 가져오기 · 처음부터 ───────────────────────────── */
+const backupText = () => 'WATCH1.' + btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+function readBackup(s){
+  const t = String(s).trim().replace(/\s+/g, '');
+  if(!t.startsWith('WATCH1.')) throw new Error('form');
+  const o = JSON.parse(decodeURIComponent(escape(atob(t.slice(7)))));
+  if(!o || !o.cfg) throw new Error('form');
+  return fix(o);
+}
+function openBackupOut(){
+  openSheet(`<h3>기록 내보내기</h3><p>아래 글자를 통째로 복사해 카톡 '나에게' 같은 곳에 보관해 두세요. 앱을 다시 깔면 '가져오기'에 붙여 넣으면 돼요.</p>
+    <div class="field"><textarea id="bk-out" readonly>${esc(backupText())}</textarea></div>
+    <button class="btn" onclick="copyBackup()">복사하기</button>
+    ${window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share ? '<button class="btn ghost sm" onclick="native(\'share\', backupText())">다른 앱으로 보내기</button>' : ''}
+    <button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function copyBackup(){
+  const t = backupText();
+  if(native('copy', t)) return toast('복사했어요');
+  const ta = document.getElementById('bk-out');
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(() => toast('복사했어요'), () => { ta.select(); toast('글자를 길게 눌러 복사해 주세요'); });
+  else { ta.select(); try{ document.execCommand('copy'); toast('복사했어요'); }catch(e){ toast('글자를 길게 눌러 복사해 주세요'); } }
+}
+function openBackupIn(){
+  openSheet(`<h3>기록 가져오기</h3><p>내보내기로 보관해 둔 글자를 통째로 붙여 넣으세요. 지금 기록은 그 내용으로 바뀌어요.</p>
+    <div class="field"><textarea id="bk-in" placeholder="여기에 붙여 넣기"></textarea></div>
+    <button class="btn" onclick="importBackup()">가져오기</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+function importBackup(){
+  try{ state = readBackup(val('bk-in')); commit('기록을 가져왔어요'); }
+  catch(e){ toast('글자가 맞지 않아요 · 통째로 붙여 넣었는지 봐 주세요'); }
+}
+function openReset(){
+  openSheet(`<h3>처음부터 다시</h3><p>모은 기록과 설정이 모두 지워져요. 되돌릴 수 없어요. 먼저 '기록 내보내기'로 보관해 두는 걸 권해요.</p>
+    <button class="btn red" onclick="state=fresh(); commit('처음부터 다시 시작해요')">모두 지우기</button><button class="btn ghost sm" onclick="closeSheet()">닫기</button>`);
+}
+
+/* ── 시작 ───────────────────────────── */
+function boot(){
+  const h = (location.hash || '').slice(1);
+  if(['home', 'plan', 'more'].includes(h)) tab = h;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + tab));
+  renderAll();
+  // 자정이 지나거나 낮 12시(토익 발표)가 되면 다시 그린다 · 앱으로 돌아올 때도
+  let last = today() + (toeicOpen() ? '+' : '');
+  const tick = () => { const k = today() + (toeicOpen() ? '+' : ''); if(k !== last){ last = k; renderAll(); } };
+  setInterval(tick, 30000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) tick(); });
+}
+if(typeof document !== 'undefined' && document.getElementById && document.getElementById('v-home')) boot();
+</script>
+</body>
+</html>
